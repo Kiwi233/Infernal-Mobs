@@ -29,6 +29,11 @@ public class RendererBossGlow
     private void renderBossGlow(float renderTick)
     {
         Minecraft mc = Minecraft.getMinecraft();
+        if (mc.isGamePaused())
+        {
+            return;
+        }
+
         EntityLivingBase viewEnt = mc.renderViewEntity;
         Vec3 curPos = viewEnt.getPosition(renderTick);
         
