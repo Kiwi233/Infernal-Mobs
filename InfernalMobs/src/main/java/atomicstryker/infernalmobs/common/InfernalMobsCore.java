@@ -5,7 +5,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Random;
+import java.util.UUID;
 
 import org.apache.logging.log4j.Level;
 
@@ -69,6 +71,7 @@ import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.item.EntityXPOrb;
 import net.minecraft.entity.monster.EntityMob;
 import net.minecraft.entity.monster.IMob;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
@@ -131,6 +134,12 @@ public class InfernalMobsCore
 
     private double maxDamage;
 
+    /*
+     * saves the last timestamp of long term affected players (eg choke) reset
+     * the players by timer if the mod didn't remove them
+     */
+    private HashMap<UUID, Long> modifiedPlayerTimes;
+
     @EventHandler
     public void preInit(FMLPreInitializationEvent evt)
     {
@@ -142,6 +151,7 @@ public class InfernalMobsCore
         classesAllowedMap = new HashMap<String, Boolean>();
         classesForcedMap = new HashMap<String, Boolean>();
         classesHealthMap = new HashMap<String, Float>();
+        modifiedPlayerTimes = new HashMap<UUID, Long>();
 
         config = new Configuration(evt.getSuggestedConfigurationFile());
         loadMods();
@@ -853,12 +863,51 @@ public class InfernalMobsCore
                     removeEntFromElites((EntityLivingBase) mob);
                 }
             }
+
+            resetModifiedPlayerEntitiesAsNeeded(tick.world);
         }
         
         if (!tick.world.isRemote)
         {
             infCheckA = null;
             infCheckB = null;   
+        }
+    }
+
+    private void resetModifiedPlayerEntitiesAsNeeded(World world)
+    {
+        Iterator<Entry<UUID, Long>> iterator = modifiedPlayerTimes.entrySet().iterator();
+        while (iterator.hasNext())
+        {
+            Entry<UUID, Long> entry = iterator.next();
+            if (System.currentTimeMillis() > entry.getValue() + (existCheckDelay * 2))
+            {
+                UUID id = entry.getKey();
+                for (Object p : world.playerEntities)
+                {
+                    if (p instanceof EntityPlayer)
+                    {
+                        EntityPlayer player = (EntityPlayer) p;
+                        if (player.getUniqueID().equals(id))
+	                    {
+	                        for (Class<? extends MobModifier> c : mobMods)
+	                        {
+	                            try
+	                            {
+	                                MobModifier mod = c.getConstructor(new Class[] {}).newInstance();
+	                                mod.resetModifiedVictim(player);
+	                            }
+	                            catch (Exception e)
+	                            {
+	                                e.printStackTrace();
+	                            }
+	                        }
+	                    }
+                    }
+                }
+
+                iterator.remove();
+            }
         }
     }
 
@@ -895,6 +944,17 @@ public class InfernalMobsCore
         infCheckA = mob;
         infCheckB = entity;
         return false;
+    }
+
+    /**
+     * add modified player entities to this map with the current time. a timer
+     * will call a reset on the players to the modifier class. do not remove
+     * players from here in a modifier as aliasing may occur (different mods
+     * using this at the same time)
+     */
+    public HashMap<UUID, Long> getModifiedPlayerTimes()
+    {
+        return modifiedPlayerTimes;
     }
 
 }
