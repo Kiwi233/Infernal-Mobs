@@ -59,6 +59,7 @@ public class MM_Ninja extends MobModifier
         double oldX = mob.posX;
         double oldY = mob.posY;
         double oldZ = mob.posZ;
+        boolean success = false;
         mob.posX = destX;
         mob.posY = destY;
         mob.posZ = destZ;
@@ -79,8 +80,8 @@ public class MM_Ninja extends MobModifier
                 }
                 else
                 {
-                    ++mob.posY;
-                    ++y;
+                    --mob.posY;
+                    --y;
                 }
             }
 
@@ -88,12 +89,25 @@ public class MM_Ninja extends MobModifier
             {
                 mob.setPosition(mob.posX, mob.posY, mob.posZ);
                 
-                mob.worldObj.playSoundEffect(oldX, oldY, oldZ, "random.explode", 2.0F, (1.0F + (mob.worldObj.rand.nextFloat() - mob.worldObj.rand.nextFloat()) * 0.2F) * 0.7F);
-                mob.worldObj.spawnParticle("hugeexplosion", oldX, oldY, oldZ, 0D, 0D, 0D);
+                if (mob.worldObj.getCollidingBoundingBoxes(mob, mob.boundingBox).isEmpty() && !mob.worldObj.isAnyLiquid(mob.boundingBox) && !mob.worldObj.checkBlockCollision(mob.boundingBox))
+                {
+                    success = true;
+                }
             }
             else
             {
                 return false;
+            }
+
+            if (!success)
+            {
+                mob.setPosition(oldX, oldY, oldZ);
+                return false;
+            }
+            else
+            {
+                mob.worldObj.playSoundEffect(oldX, oldY, oldZ, "random.explode", 2.0F, (1.0F + (mob.worldObj.rand.nextFloat() - mob.worldObj.rand.nextFloat()) * 0.2F) * 0.7F);
+                mob.worldObj.spawnParticle("hugeexplosion", oldX, oldY, oldZ, 0D, 0D, 0D);
             }
         }
         return true;
