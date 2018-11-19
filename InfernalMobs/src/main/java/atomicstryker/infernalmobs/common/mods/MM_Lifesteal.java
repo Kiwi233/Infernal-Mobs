@@ -13,12 +13,12 @@ public class MM_Lifesteal extends MobModifier
 
     public MM_Lifesteal(EntityLivingBase mob)
     {
-        this.modName = "LifeSteal";
+        this.modName = "Lifesteal";
     }
     
     public MM_Lifesteal(EntityLivingBase mob, MobModifier prevMod)
     {
-        this.modName = "LifeSteal";
+        this.modName = "Lifesteal";
         this.nextMod = prevMod;
     }
     

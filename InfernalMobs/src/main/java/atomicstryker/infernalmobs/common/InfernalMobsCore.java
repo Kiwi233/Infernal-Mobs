@@ -1,6 +1,5 @@
 package atomicstryker.infernalmobs.common;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -651,7 +650,7 @@ public class InfernalMobsCore
             }
             else
             {
-                System.err.println("Infernal Mobs error, could not instantiate modifier "+savedMods);
+                System.err.println("Infernal Mobs error, could not instantiate modifier(s) "+savedMods);
             }
         }
     }
@@ -688,7 +687,7 @@ public class InfernalMobsCore
                     e.printStackTrace();
                 }
 
-                if (nextMod != null && nextMod.modName.equals(modName))
+                if (nextMod != null && nextMod.modName.equalsIgnoreCase(modName))
                 {
                     /*
                      * Only actually keep the new linked instance if it's what
