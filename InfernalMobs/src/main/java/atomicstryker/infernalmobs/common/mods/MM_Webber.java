@@ -78,7 +78,7 @@ public class MM_Webber extends MobModifier
             
             lastAbilityUse = time;
             target.worldObj.setBlock(x, y+offset, z, Blocks.web, 0, 3);
-            mob.worldObj.playSoundAtEntity(mob, "mob.spider", 1.0F, (mob.worldObj.rand.nextFloat() - mob.worldObj.rand.nextFloat()) * 0.2F + 1.0F);
+            mob.worldObj.playSoundAtEntity(mob, "mob.spider.say1", 1.0F, (mob.worldObj.rand.nextFloat() - mob.worldObj.rand.nextFloat()) * 0.2F + 1.0F);
         }
     }
     

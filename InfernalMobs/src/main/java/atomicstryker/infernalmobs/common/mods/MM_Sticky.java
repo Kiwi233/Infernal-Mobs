@@ -46,7 +46,7 @@ public class MM_Sticky extends MobModifier
                     if (drop != null)
                     {
                         drop.delayBeforeCanPickup = 50;
-                        p.worldObj.playSoundAtEntity(mob, "mob.slimeattack", 1.0F, (p.worldObj.rand.nextFloat() - p.worldObj.rand.nextFloat()) * 0.2F + 1.0F);
+                        p.worldObj.playSoundAtEntity(mob, "mob.slime.attack1", 1.0F, (p.worldObj.rand.nextFloat() - p.worldObj.rand.nextFloat()) * 0.2F + 1.0F);
                     }
                 }
             }
