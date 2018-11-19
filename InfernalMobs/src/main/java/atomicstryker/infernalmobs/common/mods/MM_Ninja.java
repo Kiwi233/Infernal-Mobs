@@ -107,7 +107,7 @@ public class MM_Ninja extends MobModifier
             }
             else
             {
-                mob.worldObj.playSoundEffect(oldX, oldY, oldZ, "random.explode1", 2.0F, (1.0F + (mob.worldObj.rand.nextFloat() - mob.worldObj.rand.nextFloat()) * 0.2F) * 0.7F);
+                mob.worldObj.playSoundEffect(oldX, oldY, oldZ, "random.explode", 2.0F, (1.0F + (mob.worldObj.rand.nextFloat() - mob.worldObj.rand.nextFloat()) * 0.2F) * 0.7F);
                 mob.worldObj.spawnParticle("hugeexplosion", oldX, oldY, oldZ, 0D, 0D, 0D);
             }
         }

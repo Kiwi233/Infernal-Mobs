@@ -59,7 +59,7 @@ public class MM_Blastoff extends MobModifier
         if (time > nextAbilityUse)
         {
             nextAbilityUse = time+coolDown;
-            mob.worldObj.playSoundAtEntity(mob, "mob.slime.attack1", 1.0F, (mob.worldObj.rand.nextFloat() - mob.worldObj.rand.nextFloat()) * 0.2F + 1.0F);
+            mob.worldObj.playSoundAtEntity(mob, "mob.slime.attack", 1.0F, (mob.worldObj.rand.nextFloat() - mob.worldObj.rand.nextFloat()) * 0.2F + 1.0F);
             
             if (target.worldObj.isRemote || !(target instanceof EntityPlayerMP))
             {

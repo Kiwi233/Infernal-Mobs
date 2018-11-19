@@ -17,7 +17,6 @@ import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.Vec3;
-import net.minecraft.world.World;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
@@ -33,13 +32,11 @@ import atomicstryker.infernalmobs.common.network.MobModsPacket;
 import cpw.mods.fml.client.FMLClientHandler;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
-import cpw.mods.fml.common.gameevent.TickEvent;
 
 public class InfernalMobsClient implements ISidedProxy
 {
     private final double NAME_VISION_DISTANCE = 32D;
     private Minecraft mc;
-    private World lastWorld;
     private long nextPacketTime;
     private ConcurrentHashMap<EntityLivingBase, MobModifier> rareMobsClient;
     private int airOverrideValue = -999;
@@ -230,25 +227,6 @@ public class InfernalMobsClient implements ISidedProxy
         }
 
         return returnedEntity;
-    }
-    
-    @SubscribeEvent
-    public void onTick(TickEvent.RenderTickEvent tick)
-    {
-        if (mc.theWorld == null || (mc.currentScreen != null && mc.currentScreen.doesGuiPauseGame()))
-            return;
-
-        /* client reset in case of swapping worlds */
-        if (mc.theWorld != lastWorld)
-        {
-            boolean newGame = lastWorld == null;
-            lastWorld = mc.theWorld;
-
-            if (!newGame)
-            {
-                InfernalMobsCore.proxy.getRareMobs().clear();
-            }
-        }
     }
 
     @Override
