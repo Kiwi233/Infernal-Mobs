@@ -6,11 +6,15 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.Vec3;
+import net.minecraftforge.common.config.Configuration;
 import atomicstryker.infernalmobs.common.InfernalMobsCore;
 import atomicstryker.infernalmobs.common.MobModifier;
 
 public class MM_Ninja extends MobModifier
 {
+    private long nextAbilityUse = 0L;
+    private static long coolDown;
+
     public MM_Ninja(EntityLivingBase mob)
     {
         this.modName = "Ninja";
@@ -21,10 +25,7 @@ public class MM_Ninja extends MobModifier
         this.modName = "Ninja";
         this.nextMod = prevMod;
     }
-    
-    private long nextAbilityUse = 0L;
-    private final static long coolDown = 15000L;
-    
+
     @Override
     public float onHurt(EntityLivingBase mob, DamageSource source, float damage)
     {
@@ -112,7 +113,12 @@ public class MM_Ninja extends MobModifier
         }
         return true;
     }
-    
+
+    public static void loadConfig(Configuration config)
+    {
+        coolDown = config.get(MM_Ninja.class.getSimpleName(), "coolDownMillis", 15000L, "Time between ability uses").getInt(15000);
+    }
+
     @Override
     protected String[] getModNameSuffix()
     {

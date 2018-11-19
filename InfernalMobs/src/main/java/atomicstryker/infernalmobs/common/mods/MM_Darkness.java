@@ -4,11 +4,14 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.DamageSource;
+import net.minecraftforge.common.config.Configuration;
 import atomicstryker.infernalmobs.common.InfernalMobsCore;
 import atomicstryker.infernalmobs.common.MobModifier;
 
 public class MM_Darkness extends MobModifier
 {
+    private static int potionDuration;
+
     public MM_Darkness(EntityLivingBase mob)
     {
         this.modName = "Darkness";
@@ -39,12 +42,17 @@ public class MM_Darkness extends MobModifier
         if (entity != null
         && InfernalMobsCore.instance().getIsEntityAllowedTarget(entity))
         {
-            entity.addPotionEffect(new PotionEffect(Potion.blindness.id, 120, 0));
+            entity.addPotionEffect(new PotionEffect(Potion.blindness.id, potionDuration, 0));
         }
         
         return super.onAttack(entity, source, damage);
     }
-    
+
+    public static void loadConfig(Configuration config)
+    {
+        potionDuration = config.get(MM_Darkness.class.getSimpleName(), "darknessDurationTicks", 120L, "Time attacker is darkened").getInt(120);
+    }
+
     @Override
     protected String[] getModNameSuffix()
     {

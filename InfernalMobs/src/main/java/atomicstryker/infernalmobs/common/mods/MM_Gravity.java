@@ -6,11 +6,16 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.MathHelper;
+import net.minecraftforge.common.config.Configuration;
 import atomicstryker.infernalmobs.common.InfernalMobsCore;
 import atomicstryker.infernalmobs.common.MobModifier;
 
 public class MM_Gravity extends MobModifier
 {
+    private final boolean offensive;
+    private long nextAbilityUse = 0L;
+    private static long coolDown;
+
     public MM_Gravity(EntityLivingBase mob)
     {
         this.modName = "Gravity";
@@ -23,11 +28,7 @@ public class MM_Gravity extends MobModifier
         this.nextMod = prevMod;
         offensive = mob.getClass().isAssignableFrom(IMob.class);
     }
-    
-    private final boolean offensive;    
-    private long nextAbilityUse = 0L;
-    private final static long coolDown = 5000L;
-    
+
     @Override
     public boolean onUpdate(EntityLivingBase mob)
     {
@@ -105,7 +106,12 @@ public class MM_Gravity extends MobModifier
             target.motionY = 0.4000000059604645D;
         }
     }
-    
+
+    public static void loadConfig(Configuration config)
+    {
+        coolDown = config.get(MM_Gravity.class.getSimpleName(), "coolDownMillis", 5000L, "Time between ability uses").getInt(5000);
+    }
+
     @Override
     public Class<?>[] getModsNotToMixWith()
     {

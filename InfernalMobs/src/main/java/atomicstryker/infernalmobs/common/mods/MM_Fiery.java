@@ -3,10 +3,13 @@ package atomicstryker.infernalmobs.common.mods;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EntityDamageSourceIndirect;
+import net.minecraftforge.common.config.Configuration;
 import atomicstryker.infernalmobs.common.MobModifier;
 
 public class MM_Fiery extends MobModifier
 {
+    private static int fireDuration;
+
     public MM_Fiery(EntityLivingBase mob)
     {
         this.modName = "Fiery";
@@ -25,7 +28,7 @@ public class MM_Fiery extends MobModifier
         && (source.getEntity() instanceof EntityLivingBase)
         && !(source instanceof EntityDamageSourceIndirect))
         {
-            ((EntityLivingBase)source.getEntity()).setFire(3);
+            ((EntityLivingBase)source.getEntity()).setFire(fireDuration);
         }
         
         mob.extinguish();
@@ -37,12 +40,17 @@ public class MM_Fiery extends MobModifier
     {
         if (entity != null)
         {
-            entity.setFire(3);
+            entity.setFire(fireDuration);
         }
         
         return super.onAttack(entity, source, damage);
     }
-    
+
+    public static void loadConfig(Configuration config)
+    {
+        fireDuration = config.get(MM_Fiery.class.getSimpleName(), "fieryDurationSecs", 3L, "Time attacker is set on fire").getInt(3);
+    }
+
     @Override
     protected String[] getModNameSuffix()
     {

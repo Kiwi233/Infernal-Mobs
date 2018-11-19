@@ -7,10 +7,14 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EntityDamageSourceIndirect;
+import net.minecraftforge.common.config.Configuration;
 import atomicstryker.infernalmobs.common.MobModifier;
 
 public class MM_Sticky extends MobModifier
 {
+    private long nextAbilityUse = 0L;
+    private static long coolDown;
+
     public MM_Sticky(EntityLivingBase mob)
     {
         this.modName = "Sticky";
@@ -21,10 +25,7 @@ public class MM_Sticky extends MobModifier
         this.modName = "Sticky";
         this.nextMod = prevMod;
     }
-    
-    private long nextAbilityUse = 0L;
-    private final static long coolDown = 15000L;
-    
+
     @Override
     public float onHurt(EntityLivingBase mob, DamageSource source, float damage)
     {
@@ -53,7 +54,12 @@ public class MM_Sticky extends MobModifier
         
         return super.onHurt(mob, source, damage);
     }
-    
+
+    public static void loadConfig(Configuration config)
+    {
+        coolDown = config.get(MM_Sticky.class.getSimpleName(), "coolDownMillis", 15000L, "Time between ability uses").getInt(15000);
+    }
+
     private Class<?>[] disallowed = { EntityCreeper.class };
     
     @Override

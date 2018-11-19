@@ -3,6 +3,7 @@ package atomicstryker.infernalmobs.common.mods;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.DamageSource;
+import net.minecraftforge.common.config.Configuration;
 import atomicstryker.infernalmobs.common.MobModifier;
 
 public class MM_Exhaust extends MobModifier
@@ -41,7 +42,12 @@ public class MM_Exhaust extends MobModifier
         
         return super.onAttack(entity, source, damage);
     }
-    
+
+    public static void loadConfig(Configuration config)
+    {
+        // NOOP by default
+    }
+
     @Override
     protected String[] getModNameSuffix()
     {

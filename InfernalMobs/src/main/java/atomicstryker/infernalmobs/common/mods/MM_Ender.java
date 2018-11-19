@@ -6,11 +6,15 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.Vec3;
+import net.minecraftforge.common.config.Configuration;
 import atomicstryker.infernalmobs.common.InfernalMobsCore;
 import atomicstryker.infernalmobs.common.MobModifier;
 
 public class MM_Ender extends MobModifier
 {
+    private long nextAbilityUse = 0L;
+    private static long coolDown;
+
     public MM_Ender(EntityLivingBase mob)
     {
         this.modName = "Ender";
@@ -21,9 +25,6 @@ public class MM_Ender extends MobModifier
         this.modName = "Ender";
         this.nextMod = prevMod;
     }
-
-    private long nextAbilityUse = 0L;
-    private final static long coolDown = 15000L;
 
     @Override
     public float onHurt(EntityLivingBase mob, DamageSource source, float damage)
@@ -123,6 +124,11 @@ public class MM_Ender extends MobModifier
             mob.worldObj.playSoundAtEntity(mob, "mob.endermen.portal", 1.0F, 1.0F);
         }
         return true;
+    }
+
+    public static void loadConfig(Configuration config)
+    {
+        coolDown = config.get(MM_Ender.class.getSimpleName(), "coolDownMillis", 15000L, "Time between ability uses").getInt(15000);
     }
 
     @Override

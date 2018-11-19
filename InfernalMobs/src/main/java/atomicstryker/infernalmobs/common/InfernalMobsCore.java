@@ -1,5 +1,6 @@
 package atomicstryker.infernalmobs.common;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -170,7 +171,7 @@ public class InfernalMobsCore
 
         proxy.load();
 
-        System.out.println("InfernalMobsCore load() completed! Modifiers ready: " + mobMods.size());
+        FMLLog.log("InfernalMobs", Level.INFO, String.format("InfernalMobsCore load() completed! Modifiers ready: %s", mobMods.size()));
     }
 
     @EventHandler
@@ -229,6 +230,7 @@ public class InfernalMobsCore
         while (iter.hasNext())
         {
             Class<?> c = iter.next();
+
             if (!config.get(Configuration.CATEGORY_GENERAL, c.getSimpleName() + " enabled", true).getBoolean(true))
             {
                 iter.remove();
@@ -298,6 +300,22 @@ public class InfernalMobsCore
                         "",
                         "List of DimensionIDs where InfernalMobs will NEVER spawn")
                         .getString(), instance.dimensionBlackList);
+
+        // Load config for enabled modifiers
+        Iterator<Class<? extends MobModifier>> iter = mobMods.iterator();
+        while (iter.hasNext())
+        {
+            Class<?> c = iter.next();
+
+            try
+            {
+                c.getMethod("loadConfig", Configuration.class).invoke(null, config);
+            }
+            catch (Exception e)
+            {
+                FMLLog.log("InfernalMobs", Level.WARN, String.format("Failed to load modifier config for %s", c.getSimpleName()));
+            }
+        }
 
         config.save();
     }

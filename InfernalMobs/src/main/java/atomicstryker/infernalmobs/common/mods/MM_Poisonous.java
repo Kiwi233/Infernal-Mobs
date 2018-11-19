@@ -5,11 +5,14 @@ import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EntityDamageSourceIndirect;
+import net.minecraftforge.common.config.Configuration;
 import atomicstryker.infernalmobs.common.InfernalMobsCore;
 import atomicstryker.infernalmobs.common.MobModifier;
 
 public class MM_Poisonous extends MobModifier
 {
+    private static int potionDuration;
+
     public MM_Poisonous(EntityLivingBase mob)
     {
         this.modName = "Poisonous";
@@ -46,12 +49,17 @@ public class MM_Poisonous extends MobModifier
         && InfernalMobsCore.instance().getIsEntityAllowedTarget(entity)
         && !entity.isPotionActive(Potion.poison))
         {
-            entity.addPotionEffect(new PotionEffect(Potion.poison.id, 120, 0));
+            entity.addPotionEffect(new PotionEffect(Potion.poison.id, potionDuration, 0));
         }
         
         return super.onAttack(entity, source, damage);
     }
-    
+
+    public static void loadConfig(Configuration config)
+    {
+        potionDuration = config.get(MM_Poisonous.class.getSimpleName(), "poisonDurationTicks", 120L, "Time attacker is poisoned").getInt(120);
+    }
+
     @Override
     protected String[] getModNameSuffix()
     {

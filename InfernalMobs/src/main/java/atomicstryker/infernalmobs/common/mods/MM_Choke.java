@@ -4,6 +4,7 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.util.DamageSource;
+import net.minecraftforge.common.config.Configuration;
 
 import java.util.UUID;
 
@@ -115,6 +116,11 @@ public class MM_Choke extends MobModifier
     public void resetModifiedVictim(EntityPlayer victim)
     {
         victim.setAir(-999);
+    }
+
+    public static void loadConfig(Configuration config)
+    {
+        // NOOP by default
     }
 
     @Override

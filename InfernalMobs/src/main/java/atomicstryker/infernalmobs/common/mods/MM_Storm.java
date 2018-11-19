@@ -4,10 +4,15 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.effect.EntityLightningBolt;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.MathHelper;
+import net.minecraftforge.common.config.Configuration;
 import atomicstryker.infernalmobs.common.MobModifier;
 
 public class MM_Storm extends MobModifier
 {
+    private long nextAbilityUse = 0L;
+    private static long coolDown;
+    private final static float MIN_DISTANCE = 3F;
+
     public MM_Storm(EntityLivingBase mob)
     {
         this.modName = "Storm";
@@ -18,11 +23,7 @@ public class MM_Storm extends MobModifier
         this.modName = "Storm";
         this.nextMod = prevMod;
     }
-    
-    private long nextAbilityUse = 0L;
-    private final static long coolDown = 15000L;
-    private final static float MIN_DISTANCE = 3F;
-    
+
     @Override
     public boolean onUpdate(EntityLivingBase mob)
     {
@@ -51,7 +52,12 @@ public class MM_Storm extends MobModifier
             mob.worldObj.addWeatherEffect(new EntityLightningBolt(mob.worldObj, target.posX, target.posY-1, target.posZ));
         }
     }
-    
+
+    public static void loadConfig(Configuration config)
+    {
+        coolDown = config.get(MM_Storm.class.getSimpleName(), "coolDownMillis", 15000L, "Time between ability uses").getInt(15000);
+    }
+
     @Override
     protected String[] getModNameSuffix()
     {

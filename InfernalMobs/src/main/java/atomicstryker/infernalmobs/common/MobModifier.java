@@ -9,6 +9,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.StatCollector;
+import net.minecraftforge.common.config.Configuration;
 
 public abstract class MobModifier
 {    
@@ -474,6 +475,14 @@ public abstract class MobModifier
      * and clean up their changes when necessary
      */
     public void resetModifiedVictim(EntityPlayer victim)
+    {
+        // NOOP by default
+    }
+
+    /**
+     * Load modifier-specific configuration
+     */
+    public static void loadConfig(Configuration config)
     {
         // NOOP by default
     }

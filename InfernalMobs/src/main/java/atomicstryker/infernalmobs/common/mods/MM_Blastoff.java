@@ -4,11 +4,15 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.util.DamageSource;
+import net.minecraftforge.common.config.Configuration;
 import atomicstryker.infernalmobs.common.InfernalMobsCore;
 import atomicstryker.infernalmobs.common.MobModifier;
 
 public class MM_Blastoff extends MobModifier
 {
+    private long nextAbilityUse = 0L;
+    private static long coolDown;
+
     public MM_Blastoff(EntityLivingBase mob)
     {
         this.modName = "Blastoff";
@@ -19,10 +23,7 @@ public class MM_Blastoff extends MobModifier
         this.modName = "Blastoff";
         this.nextMod = prevMod;
     }
-    
-    private long nextAbilityUse = 0L;
-    private final static long coolDown = 15000L;
-    
+
     @Override
     public boolean onUpdate(EntityLivingBase mob)
     {
@@ -71,6 +72,11 @@ public class MM_Blastoff extends MobModifier
         }
     }
     
+    public static void loadConfig(Configuration config)
+    {
+        coolDown = config.get(MM_Blastoff.class.getSimpleName(), "coolDownMillis", 15000L, "Time between ability uses").getInt(15000);
+    }
+
     @Override
     public Class<?>[] getModsNotToMixWith()
     {
