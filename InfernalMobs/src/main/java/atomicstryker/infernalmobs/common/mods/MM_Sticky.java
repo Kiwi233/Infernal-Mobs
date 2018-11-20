@@ -30,7 +30,8 @@ public class MM_Sticky extends MobModifier
     public float onHurt(EntityLivingBase mob, DamageSource source, float damage)
     {
         if (source.getEntity() != null
-        && (source.getEntity() instanceof EntityPlayer))
+        && (source.getEntity() instanceof EntityPlayer)
+        && !((EntityPlayer) source.getEntity()).capabilities.isCreativeMode)
         {
             EntityPlayer p = (EntityPlayer)source.getEntity();
             ItemStack weapon = p.inventory.getStackInSlot(p.inventory.currentItem);

@@ -27,10 +27,13 @@ public class MM_Blastoff extends MobModifier
     @Override
     public boolean onUpdate(EntityLivingBase mob)
     {
-        if (getMobTarget() != null
-        && getMobTarget() instanceof EntityPlayer)
+        EntityLivingBase target = getMobTarget();
+
+        if (target != null
+        && target instanceof EntityPlayer
+        && !(target instanceof EntityPlayer && ((EntityPlayer) target).capabilities.disableDamage))
         {
-            tryAbility(mob, getMobTarget());
+            tryAbility(mob, target);
         }
         
         return super.onUpdate(mob);
@@ -40,7 +43,8 @@ public class MM_Blastoff extends MobModifier
     public float onHurt(EntityLivingBase mob, DamageSource source, float damage)
     {
         if (source.getEntity() != null
-        && source.getEntity() instanceof EntityLivingBase)
+        && source.getEntity() instanceof EntityLivingBase
+        && !(source.getEntity() instanceof EntityPlayer && ((EntityPlayer) source.getEntity()).capabilities.disableDamage))
         {
             tryAbility(mob, (EntityLivingBase) source.getEntity());
         }
