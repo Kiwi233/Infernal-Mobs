@@ -50,7 +50,7 @@ public class MM_Webber extends MobModifier
 
     private void tryAbility(EntityLivingBase mob, EntityLivingBase target)
     {
-        if (target == null || !mob.canEntityBeSeen(target))
+        if (target == null || !mob.canEntityBeSeen(target) || (target instanceof EntityPlayer && ((EntityPlayer) target).capabilities.disableDamage))
         {
             return;
         }
