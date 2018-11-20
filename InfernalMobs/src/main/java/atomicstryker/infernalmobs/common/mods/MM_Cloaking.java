@@ -63,7 +63,7 @@ public class MM_Cloaking extends MobModifier
     public static void loadConfig(Configuration config)
     {
         potionDuration = config.get(MM_Cloaking.class.getSimpleName(), "cloakingDurationTicks", 200L, "Time mob is cloaked").getInt(200);
-        coolDown = config.get(MM_Cloaking.class.getSimpleName(), "coolDownMillis", 10000L, "Time between ability uses").getInt(10000);
+        coolDown = config.get(MM_Cloaking.class.getSimpleName(), "coolDownMillis", 12000L, "Time between ability uses").getInt(12000);
     }
 
     @Override
