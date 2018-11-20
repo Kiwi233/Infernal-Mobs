@@ -37,7 +37,7 @@ public class MM_Berserk extends MobModifier
     
     public static void loadConfig(Configuration config)
     {
-        damageMultiplier = (float) config.get(MM_Berserk.class.getSimpleName(), "damageMultiplier", 2.0D, "Damage multiplier, still limited by maxOneShotDamage").getDouble(2.0D);
+        damageMultiplier = (float) config.get(MM_Berserk.class.getSimpleName(), "damageMultiplier", 2.0D, "Damage multiplier, limited by maxOneShotDamage").getDouble(2.0D);
     }
 
     @Override

@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
+import net.minecraft.entity.monster.EntityMob;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumChatFormatting;
@@ -260,7 +261,10 @@ public abstract class MobModifier
         {
             if (attackTarget == null)
             {
-                attackTarget = mob.worldObj.getClosestVulnerablePlayerToEntity(mob, 7.5f);
+                if (mob instanceof EntityMob)
+                {
+                    attackTarget = (EntityLivingBase) ((EntityMob) mob).getEntityToAttack();
+                }
             }
             
             if (attackTarget != null)
