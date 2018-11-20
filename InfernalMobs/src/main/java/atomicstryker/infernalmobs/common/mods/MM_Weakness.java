@@ -50,7 +50,7 @@ public class MM_Weakness extends MobModifier
 
     public static void loadConfig(Configuration config)
     {
-        potionDuration = config.get(MM_Weakness.class.getSimpleName(), "weaknessDurationTicks", 120L, "Time attacker is weakned").getInt(120);
+        potionDuration = config.get(MM_Weakness.class.getSimpleName(), "weaknessDurationTicks", 120L, "Time attacker is weakened").getInt(120);
     }
 
     @Override
