@@ -418,8 +418,7 @@ public class InfernalMobsCore
 	                        MobModifier mod = instance.createMobModifiers(entity);
 	                        if (mod != null)
 	                        {
-	                            proxy.getRareMobs().put(entity, mod);
-	                            mod.onSpawningComplete(entity);
+	                            addEntityModifiers(entity, mod, false);
 	                            // System.out.println("InfernalMobsCore modded mob: "+entity+", id "+entity.getEntityId()+": "+mod.getLinkedModName());
 	                        }
                     	}
@@ -538,7 +537,7 @@ public class InfernalMobsCore
      * @return null or the first linked MobModifier instance for the Entity
      */
     @SuppressWarnings("unchecked")
-    private MobModifier createMobModifiers(EntityLivingBase entity)
+    MobModifier createMobModifiers(EntityLivingBase entity)
     {
         /* 2-5 modifications standard */
         int number = 2 + entity.worldObj.rand.nextInt(3);
@@ -627,6 +626,19 @@ public class InfernalMobsCore
         return lastMod;
     }
 
+    public void addEntityModifiers(EntityLivingBase entity, MobModifier mod, boolean isHealthHacked)
+    {
+       if (mod != null)
+       {
+           proxy.getRareMobs().put(entity, mod);
+           mod.onSpawningComplete(entity);
+           if (isHealthHacked)
+           {
+               mod.setHealthAlreadyHacked(entity);
+           }
+       }
+    }
+
     /**
      * Converts a String to MobModifier instances and connects them to an Entity
      * 
@@ -642,9 +654,7 @@ public class InfernalMobsCore
             MobModifier mod = stringToMobModifiers(entity, savedMods);
             if (mod != null)
             {
-                proxy.getRareMobs().put(entity, mod);
-                mod.onSpawningComplete(entity);
-                mod.setHealthAlreadyHacked(entity);
+                addEntityModifiers(entity, mod, true);
             }
             else
             {
