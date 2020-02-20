@@ -124,6 +124,13 @@ public class InfernalMobsCore
     private int eliteRarity;
     private int ultraRarity;
     private int infernoRarity;
+
+    private int minEliteModifiers;
+    private int maxEliteModifiers;
+    private int minUltraModifiers;
+    private int maxUltraModifiers;
+    private int minInfernoModifiers;
+    private int maxInfernoModifiers;
     public Configuration config;
 
     @SidedProxy(clientSide = "atomicstryker.infernalmobs.client.InfernalMobsClient", serverSide = "atomicstryker.infernalmobs.common.InfernalMobsServer")
@@ -253,6 +260,12 @@ public class InfernalMobsCore
         infernoRarity =
                 Integer.parseInt(config.get(Configuration.CATEGORY_GENERAL, "infernoRarity", 7,
                         "One in THIS many already ultra Mobs will become infernal").getString());
+        minEliteModifiers = Integer.parseInt(config.get(Configuration.CATEGORY_GENERAL, "minEliteModifiers", 2, "Minimum number of Modifiers an Elite mob will receive").getString());
+        maxEliteModifiers = Integer.parseInt(config.get(Configuration.CATEGORY_GENERAL, "maxEliteModifiers", 5, "Maximum number of Modifiers an Elite mob will receive").getString());
+        minUltraModifiers = Integer.parseInt(config.get(Configuration.CATEGORY_GENERAL, "minUltraModifiers", 5, "Minimum number of Modifiers an Ultra mob will receive").getString());
+        maxUltraModifiers = Integer.parseInt(config.get(Configuration.CATEGORY_GENERAL, "maxUltraModifiers", 10, "Maximum number of Modifiers an Ultra mob will receive").getString());
+        minInfernoModifiers = Integer.parseInt(config.get(Configuration.CATEGORY_GENERAL, "minInfernoModifiers", 8, "Minimum number of Modifiers an Inferno mob will receive").getString());
+        maxInfernoModifiers = Integer.parseInt(config.get(Configuration.CATEGORY_GENERAL, "maxInfernoModifiers", 15, "Maximum number of Modifiers an Inferno mob will receive").getString());
         useSimpleEntityClassNames =
                 config.get(Configuration.CATEGORY_GENERAL, "useSimpleEntityClassnames", true,
                         "Use Entity class names instead of ingame Entity names for the config").getBoolean(true);
@@ -539,21 +552,22 @@ public class InfernalMobsCore
     @SuppressWarnings("unchecked")
     MobModifier createMobModifiers(EntityLivingBase entity)
     {
-        /* 2-5 modifications standard */
-        int number = 2 + entity.worldObj.rand.nextInt(3);
         /* lets just be lazy and scratch mods off a list copy */
         ArrayList<Class<? extends MobModifier>> possibleMods = (ArrayList<Class<? extends MobModifier>>) mobMods.clone();
 
+        int minModifiers = minEliteModifiers;
+        int maxModifiers = maxEliteModifiers;
         if (entity.worldObj.rand.nextInt(ultraRarity) == 0) // ultra mobs
         {
-            number += 3 + entity.worldObj.rand.nextInt(2);
-
-            if (entity.worldObj.rand.nextInt(infernoRarity) == 0) // infernal
-                                                                  // mobs
+            minModifiers = minUltraModifiers;
+            maxModifiers = maxUltraModifiers;
+            if (entity.worldObj.rand.nextInt(infernoRarity) == 0) // infernal mobs
             {
-                number += 3 + entity.worldObj.rand.nextInt(2);
+                minModifiers = minInfernoModifiers;
+                maxModifiers = maxInfernoModifiers;
             }
         }
+        int number = Math.min(minModifiers, maxModifiers) + entity.worldObj.rand.nextInt((Math.max(minModifiers, maxModifiers) - Math.min(minModifiers, maxModifiers)) + 1);
 
         MobModifier lastMod = null;
         while (number > 0 && !possibleMods.isEmpty()) // so long we need more
