@@ -4,6 +4,7 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.DamageSource;
+import net.minecraft.util.EntityDamageSourceIndirect;
 import net.minecraftforge.common.config.Configuration;
 import atomicstryker.infernalmobs.common.InfernalMobsCore;
 import atomicstryker.infernalmobs.common.MobModifier;
@@ -28,9 +29,11 @@ public class MM_Darkness extends MobModifier
     {
         if (source.getEntity() != null
         && (source.getEntity() instanceof EntityLivingBase)
-        && InfernalMobsCore.instance().getIsEntityAllowedTarget(source.getEntity()))
+        && InfernalMobsCore.instance().getIsEntityAllowedTarget(source.getEntity())
+        && !(source instanceof EntityDamageSourceIndirect)
+        && !source.isProjectile())
         {
-            ((EntityLivingBase)source.getEntity()).addPotionEffect(new PotionEffect(Potion.blindness.id, 120, 0));
+            ((EntityLivingBase)source.getEntity()).addPotionEffect(new PotionEffect(Potion.blindness.id, potionDuration, 0));
         }
         
         return super.onHurt(mob, source, damage);

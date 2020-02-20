@@ -26,7 +26,8 @@ public class MM_Fiery extends MobModifier
     {
         if (source.getEntity() != null
         && (source.getEntity() instanceof EntityLivingBase)
-        && !(source instanceof EntityDamageSourceIndirect))
+        && !(source instanceof EntityDamageSourceIndirect)
+        && !source.isProjectile())
         {
             ((EntityLivingBase)source.getEntity()).setFire(fireDuration);
         }

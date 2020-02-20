@@ -33,9 +33,10 @@ public class MM_Poisonous extends MobModifier
         {
             EntityLivingBase ent = (EntityLivingBase)source.getEntity();
             if (!ent.isPotionActive(Potion.poison)
-            && !(source instanceof EntityDamageSourceIndirect))
+            && !(source instanceof EntityDamageSourceIndirect)
+            && !source.isProjectile())
             {
-                ent.addPotionEffect(new PotionEffect(Potion.poison.id, 120, 0));
+                ent.addPotionEffect(new PotionEffect(Potion.poison.id, potionDuration, 0));
             }
         }
         

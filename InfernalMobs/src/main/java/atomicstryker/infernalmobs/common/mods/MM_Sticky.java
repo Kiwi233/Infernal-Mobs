@@ -31,7 +31,9 @@ public class MM_Sticky extends MobModifier
     {
         if (source.getEntity() != null
         && (source.getEntity() instanceof EntityPlayer)
-        && !((EntityPlayer) source.getEntity()).capabilities.isCreativeMode)
+        && !((EntityPlayer) source.getEntity()).capabilities.isCreativeMode
+        && !(source instanceof EntityDamageSourceIndirect)
+        && !source.isProjectile())
         {
             EntityPlayer p = (EntityPlayer)source.getEntity();
             ItemStack weapon = p.inventory.getStackInSlot(p.inventory.currentItem);
