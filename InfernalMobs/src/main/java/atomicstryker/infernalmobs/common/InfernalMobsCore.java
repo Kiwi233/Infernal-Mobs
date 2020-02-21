@@ -466,9 +466,7 @@ public class InfernalMobsCore
         catch (Exception e)
         {
             result = entity.getClass().getSimpleName();
-            System.err.println("Entity of class " + result
-                    + " crashed when EntityList.getEntityString was queried, for shame! Using classname instead.");
-            System.err.println("If this message is spamming too much for your taste set useSimpleEntityClassnames true in your Infernal Mobs config");
+            FMLLog.log("InfernalMobs", Level.INFO, String.format("Entity of class %s crashed when EntityList.getEntityString was queried, for shame! Using classname instead. If this message is spamming too much for your taste set useSimpleEntityClassnames true in your Infernal Mobs config", result));
         }
         return result;
     }
@@ -666,7 +664,7 @@ public class InfernalMobsCore
             }
             else
             {
-                System.err.println("Infernal Mobs error, could not instantiate modifier(s) "+savedMods);
+                FMLLog.log("InfernalMobs", Level.DEBUG, String.format("Infernal Mobs error, could not instantiate modifier(s) %s", savedMods));
             }
         }
     }
