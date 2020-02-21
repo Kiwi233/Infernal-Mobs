@@ -138,8 +138,6 @@ public class InfernalMobsCore
 
     public NetworkHelper networkHelper;
 
-    private double maxDamage;
-
     /*
      * saves the last timestamp of long term affected players (eg choke) reset
      * the players by timer if the mod didn't remove them
@@ -299,10 +297,6 @@ public class InfernalMobsCore
                         "diamond-0-3,diamond_sword,diamond_shovel,diamond_pickaxe,diamond_axe,diamond_hoe,chainmail_helmet,chainmail_chestplate,chainmail_leggings,chainmail_boots,diamond_helmet,diamond_chestplate,diamond_leggings,diamond_boots,ender_pearl,enchanted_book",
                         "List of equally likely to drop Items for Infernals, seperated by commas, syntax: ID-meta-stackSize-stackSizeRandomizer, everything but ID is optional, see changelog")
                         .getString(), instance.dropIdListInfernal);
-
-        maxDamage =
-                config.get(Configuration.CATEGORY_GENERAL, "maxOneShotDamage", 10d,
-                        "highest amount of damage an Infernal Mob or reflecting Mod will do in a single strike").getDouble(10d);
 
         parseIDsForList(
                 config.get(
@@ -960,11 +954,6 @@ public class InfernalMobsCore
         return modHealthFactor;
     }
     
-    public float getLimitedDamage(float test)
-    {
-        return (float) Math.min(test, maxDamage);
-    }
-
     public boolean getIsEntityAllowedTarget(Entity entity)
     {
         return !(entity instanceof FakePlayer);
