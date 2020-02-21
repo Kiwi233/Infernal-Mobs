@@ -40,6 +40,7 @@ public class InfernalMobsClient implements ISidedProxy
     private long nextPacketTime;
     private ConcurrentHashMap<EntityLivingBase, MobModifier> rareMobsClient;
     private int airOverrideValue = -999;
+    private long airDisplayTimeout;
     
     private long healthBarRetainTime;
     private EntityLivingBase retainedTarget;
@@ -272,11 +273,16 @@ public class InfernalMobsClient implements ISidedProxy
     public void onAirPacket(int air)
     {
         airOverrideValue = air;
+        airDisplayTimeout = System.currentTimeMillis() + 3000L;
     }
     
     @SubscribeEvent
     public void onTick(RenderGameOverlayEvent.Pre event)
     {
+        if (System.currentTimeMillis() > airDisplayTimeout) {
+            airOverrideValue = -999;
+        }
+
         if (event.type == RenderGameOverlayEvent.ElementType.AIR)
         {
             if (!mc.thePlayer.isInsideOfMaterial(Material.water) && airOverrideValue != -999)
