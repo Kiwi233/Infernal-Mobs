@@ -81,7 +81,7 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.util.FakePlayer;
 
-@Mod(modid = "InfernalMobs", name = "Infernal Mobs", version = "1.6.6gtnh1")
+@Mod(modid = "InfernalMobs", name = "Infernal Mobs", version = "1.7.0-GTNH")
 public class InfernalMobsCore
 {
     private final long existCheckDelay = 5000L;
