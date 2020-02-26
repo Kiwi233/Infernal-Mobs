@@ -1,10 +1,15 @@
 package atomicstryker.infernalmobs.common.mods;
 
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraftforge.common.config.Configuration;
 import atomicstryker.infernalmobs.common.MobModifier;
 
 public class MM_Sprint extends MobModifier
 {
+    private long nextAbilityUse = 0L;
+    private static long coolDown;
+    private boolean sprinting;
+
     public MM_Sprint(EntityLivingBase mob)
     {
         this.modName = "Sprint";
@@ -15,11 +20,7 @@ public class MM_Sprint extends MobModifier
         this.modName = "Sprint";
         this.nextMod = prevMod;
     }
-    
-    private long nextAbilityUse = 0L;
-    private final static long coolDown = 5000L;
-    private boolean sprinting;
-    
+
     @Override
     public boolean onUpdate(EntityLivingBase mob)
     {
@@ -99,6 +100,11 @@ public class MM_Sprint extends MobModifier
         return Math.sqrt(modMotionX*modMotionX + modMotionZ*modMotionZ);
     }
     
+    public static void loadConfig(Configuration config)
+    {
+        coolDown = config.get(MM_Sprint.class.getSimpleName(), "coolDownMillis", 5000L, "Time between ability uses").getInt(5000);
+    }
+
     @Override
     protected String[] getModNameSuffix()
     {

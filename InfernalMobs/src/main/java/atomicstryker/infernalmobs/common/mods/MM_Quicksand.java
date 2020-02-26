@@ -3,6 +3,7 @@ package atomicstryker.infernalmobs.common.mods;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
+import net.minecraftforge.common.config.Configuration;
 import atomicstryker.infernalmobs.common.InfernalMobsCore;
 import atomicstryker.infernalmobs.common.MobModifier;
 
@@ -27,15 +28,20 @@ public class MM_Quicksand extends MobModifier
         if (getMobTarget() != null
         && InfernalMobsCore.instance().getIsEntityAllowedTarget(getMobTarget())
         && mob.canEntityBeSeen(getMobTarget())
-        && ++ticker == 50)
+        && ++ticker >= 80)
         {
             ticker = 0;
-            getMobTarget().addPotionEffect(new PotionEffect(Potion.moveSlowdown.id, 45, 0));
+            getMobTarget().addPotionEffect(new PotionEffect(Potion.moveSlowdown.id, 100, 0));
         }
         
         return super.onUpdate(mob);
     }
-    
+
+    public static void loadConfig(Configuration config)
+    {
+        // NOOP by default
+    }
+
     @Override
     protected String[] getModNameSuffix()
     {

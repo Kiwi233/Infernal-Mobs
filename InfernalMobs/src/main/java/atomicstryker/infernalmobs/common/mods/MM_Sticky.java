@@ -7,10 +7,14 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EntityDamageSourceIndirect;
+import net.minecraftforge.common.config.Configuration;
 import atomicstryker.infernalmobs.common.MobModifier;
 
 public class MM_Sticky extends MobModifier
 {
+    private long nextAbilityUse = 0L;
+    private static long coolDown;
+
     public MM_Sticky(EntityLivingBase mob)
     {
         this.modName = "Sticky";
@@ -21,15 +25,15 @@ public class MM_Sticky extends MobModifier
         this.modName = "Sticky";
         this.nextMod = prevMod;
     }
-    
-    private long nextAbilityUse = 0L;
-    private final static long coolDown = 15000L;
-    
+
     @Override
     public float onHurt(EntityLivingBase mob, DamageSource source, float damage)
     {
         if (source.getEntity() != null
-        && (source.getEntity() instanceof EntityPlayer))
+        && (source.getEntity() instanceof EntityPlayer)
+        && !((EntityPlayer) source.getEntity()).capabilities.isCreativeMode
+        && !(source instanceof EntityDamageSourceIndirect)
+        && !source.isProjectile())
         {
             EntityPlayer p = (EntityPlayer)source.getEntity();
             ItemStack weapon = p.inventory.getStackInSlot(p.inventory.currentItem);
@@ -45,7 +49,7 @@ public class MM_Sticky extends MobModifier
                     if (drop != null)
                     {
                         drop.delayBeforeCanPickup = 50;
-                        p.worldObj.playSoundAtEntity(mob, "mob.slimeattack", 1.0F, (p.worldObj.rand.nextFloat() - p.worldObj.rand.nextFloat()) * 0.2F + 1.0F);
+                        p.worldObj.playSoundAtEntity(mob, "mob.slime.attack", 1.0F, (p.worldObj.rand.nextFloat() - p.worldObj.rand.nextFloat()) * 0.2F + 1.0F);
                     }
                 }
             }
@@ -53,7 +57,12 @@ public class MM_Sticky extends MobModifier
         
         return super.onHurt(mob, source, damage);
     }
-    
+
+    public static void loadConfig(Configuration config)
+    {
+        coolDown = config.get(MM_Sticky.class.getSimpleName(), "coolDownMillis", 15000L, "Time between ability uses").getInt(15000);
+    }
+
     private Class<?>[] disallowed = { EntityCreeper.class };
     
     @Override

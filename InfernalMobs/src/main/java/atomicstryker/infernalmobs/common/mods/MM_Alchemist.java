@@ -4,6 +4,7 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.projectile.EntityPotion;
 import net.minecraft.potion.Potion;
 import net.minecraft.util.MathHelper;
+import net.minecraftforge.common.config.Configuration;
 import atomicstryker.infernalmobs.common.MobModifier;
 
 public class MM_Alchemist extends MobModifier
@@ -20,7 +21,7 @@ public class MM_Alchemist extends MobModifier
     }
     
     private long nextAbilityUse = 0L;
-    private final static long coolDown = 6000L;
+    private static long coolDown;
     private final static float MIN_DISTANCE = 2F;
     
     @Override
@@ -30,7 +31,7 @@ public class MM_Alchemist extends MobModifier
         if (time > nextAbilityUse)
         {
             nextAbilityUse = time+coolDown;
-            tryAbility(mob, mob.worldObj.getClosestVulnerablePlayerToEntity(mob, 12f));
+            tryAbility(mob, getMobTarget());
         }
         return super.onUpdate(mob);
     }
@@ -69,6 +70,11 @@ public class MM_Alchemist extends MobModifier
         }
     }
     
+    public static void loadConfig(Configuration config)
+    {
+        coolDown = config.get(MM_Alchemist.class.getSimpleName(), "coolDownMillis", 6000L, "Time between ability uses").getInt(6000);
+    }
+
     @Override
     protected String[] getModNameSuffix()
     {

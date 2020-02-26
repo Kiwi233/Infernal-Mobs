@@ -5,7 +5,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Random;
+import java.util.UUID;
 
 import org.apache.logging.log4j.Level;
 
@@ -64,11 +66,11 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.IEntityOwnable;
-import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.item.EntityXPOrb;
 import net.minecraft.entity.monster.EntityMob;
 import net.minecraft.entity.monster.IMob;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
@@ -79,7 +81,7 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.util.FakePlayer;
 
-@Mod(modid = "InfernalMobs", name = "Infernal Mobs", version = "1.6.6")
+@Mod(modid = "InfernalMobs", name = "Infernal Mobs", version = "1.6.6gtnh1")
 public class InfernalMobsCore
 {
     private final long existCheckDelay = 5000L;
@@ -122,6 +124,13 @@ public class InfernalMobsCore
     private int eliteRarity;
     private int ultraRarity;
     private int infernoRarity;
+
+    private int minEliteModifiers;
+    private int maxEliteModifiers;
+    private int minUltraModifiers;
+    private int maxUltraModifiers;
+    private int minInfernoModifiers;
+    private int maxInfernoModifiers;
     public Configuration config;
 
     @SidedProxy(clientSide = "atomicstryker.infernalmobs.client.InfernalMobsClient", serverSide = "atomicstryker.infernalmobs.common.InfernalMobsServer")
@@ -129,7 +138,11 @@ public class InfernalMobsCore
 
     public NetworkHelper networkHelper;
 
-    private double maxDamage;
+    /*
+     * saves the last timestamp of long term affected players (eg choke) reset
+     * the players by timer if the mod didn't remove them
+     */
+    private HashMap<UUID, Long> modifiedPlayerTimes;
 
     @EventHandler
     public void preInit(FMLPreInitializationEvent evt)
@@ -142,6 +155,7 @@ public class InfernalMobsCore
         classesAllowedMap = new HashMap<String, Boolean>();
         classesForcedMap = new HashMap<String, Boolean>();
         classesHealthMap = new HashMap<String, Float>();
+        modifiedPlayerTimes = new HashMap<UUID, Long>();
 
         config = new Configuration(evt.getSuggestedConfigurationFile());
         loadMods();
@@ -160,7 +174,7 @@ public class InfernalMobsCore
 
         proxy.load();
 
-        System.out.println("InfernalMobsCore load() completed! Modifiers ready: " + mobMods.size());
+        FMLLog.log("InfernalMobs", Level.INFO, String.format("InfernalMobsCore load() completed! Modifiers ready: %s", mobMods.size()));
     }
 
     @EventHandler
@@ -219,6 +233,7 @@ public class InfernalMobsCore
         while (iter.hasNext())
         {
             Class<?> c = iter.next();
+
             if (!config.get(Configuration.CATEGORY_GENERAL, c.getSimpleName() + " enabled", true).getBoolean(true))
             {
                 iter.remove();
@@ -243,6 +258,12 @@ public class InfernalMobsCore
         infernoRarity =
                 Integer.parseInt(config.get(Configuration.CATEGORY_GENERAL, "infernoRarity", 7,
                         "One in THIS many already ultra Mobs will become infernal").getString());
+        minEliteModifiers = Integer.parseInt(config.get(Configuration.CATEGORY_GENERAL, "minEliteModifiers", 2, "Minimum number of Modifiers an Elite mob will receive").getString());
+        maxEliteModifiers = Integer.parseInt(config.get(Configuration.CATEGORY_GENERAL, "maxEliteModifiers", 5, "Maximum number of Modifiers an Elite mob will receive").getString());
+        minUltraModifiers = Integer.parseInt(config.get(Configuration.CATEGORY_GENERAL, "minUltraModifiers", 5, "Minimum number of Modifiers an Ultra mob will receive").getString());
+        maxUltraModifiers = Integer.parseInt(config.get(Configuration.CATEGORY_GENERAL, "maxUltraModifiers", 10, "Maximum number of Modifiers an Ultra mob will receive").getString());
+        minInfernoModifiers = Integer.parseInt(config.get(Configuration.CATEGORY_GENERAL, "minInfernoModifiers", 8, "Minimum number of Modifiers an Inferno mob will receive").getString());
+        maxInfernoModifiers = Integer.parseInt(config.get(Configuration.CATEGORY_GENERAL, "maxInfernoModifiers", 15, "Maximum number of Modifiers an Inferno mob will receive").getString());
         useSimpleEntityClassNames =
                 config.get(Configuration.CATEGORY_GENERAL, "useSimpleEntityClassnames", true,
                         "Use Entity class names instead of ingame Entity names for the config").getBoolean(true);
@@ -277,10 +298,6 @@ public class InfernalMobsCore
                         "List of equally likely to drop Items for Infernals, seperated by commas, syntax: ID-meta-stackSize-stackSizeRandomizer, everything but ID is optional, see changelog")
                         .getString(), instance.dropIdListInfernal);
 
-        maxDamage =
-                config.get(Configuration.CATEGORY_GENERAL, "maxOneShotDamage", 10d,
-                        "highest amount of damage an Infernal Mob or reflecting Mod will do in a single strike").getDouble(10d);
-
         parseIDsForList(
                 config.get(
                         Configuration.CATEGORY_GENERAL,
@@ -288,6 +305,22 @@ public class InfernalMobsCore
                         "",
                         "List of DimensionIDs where InfernalMobs will NEVER spawn")
                         .getString(), instance.dimensionBlackList);
+
+        // Load config for enabled modifiers
+        Iterator<Class<? extends MobModifier>> iter = mobMods.iterator();
+        while (iter.hasNext())
+        {
+            Class<?> c = iter.next();
+
+            try
+            {
+                c.getMethod("loadConfig", Configuration.class).invoke(null, config);
+            }
+            catch (Exception e)
+            {
+                FMLLog.log("InfernalMobs", Level.WARN, String.format("Failed to load modifier config for %s", c.getSimpleName()));
+            }
+        }
 
         config.save();
     }
@@ -392,8 +425,7 @@ public class InfernalMobsCore
 	                        MobModifier mod = instance.createMobModifiers(entity);
 	                        if (mod != null)
 	                        {
-	                            proxy.getRareMobs().put(entity, mod);
-	                            mod.onSpawningComplete(entity);
+	                            addEntityModifiers(entity, mod, false);
 	                            // System.out.println("InfernalMobsCore modded mob: "+entity+", id "+entity.getEntityId()+": "+mod.getLinkedModName());
 	                        }
                     	}
@@ -434,9 +466,7 @@ public class InfernalMobsCore
         catch (Exception e)
         {
             result = entity.getClass().getSimpleName();
-            System.err.println("Entity of class " + result
-                    + " crashed when EntityList.getEntityString was queried, for shame! Using classname instead.");
-            System.err.println("If this message is spamming too much for your taste set useSimpleEntityClassnames true in your Infernal Mobs config");
+            FMLLog.log("InfernalMobs", Level.INFO, String.format("Entity of class %s crashed when EntityList.getEntityString was queried, for shame! Using classname instead. If this message is spamming too much for your taste set useSimpleEntityClassnames true in your Infernal Mobs config", result));
         }
         return result;
     }
@@ -499,7 +529,6 @@ public class InfernalMobsCore
      */
     public void setEntityHealthPastMax(EntityLivingBase entity, float amount)
     {
-        entity.getEntityAttribute(SharedMonsterAttributes.maxHealth).setBaseValue(amount);
         entity.setHealth(amount);
         instance.sendHealthPacket(entity, amount);
     }
@@ -513,23 +542,24 @@ public class InfernalMobsCore
      * @return null or the first linked MobModifier instance for the Entity
      */
     @SuppressWarnings("unchecked")
-    private MobModifier createMobModifiers(EntityLivingBase entity)
+    MobModifier createMobModifiers(EntityLivingBase entity)
     {
-        /* 2-5 modifications standard */
-        int number = 2 + entity.worldObj.rand.nextInt(3);
         /* lets just be lazy and scratch mods off a list copy */
         ArrayList<Class<? extends MobModifier>> possibleMods = (ArrayList<Class<? extends MobModifier>>) mobMods.clone();
 
+        int minModifiers = minEliteModifiers;
+        int maxModifiers = maxEliteModifiers;
         if (entity.worldObj.rand.nextInt(ultraRarity) == 0) // ultra mobs
         {
-            number += 3 + entity.worldObj.rand.nextInt(2);
-
-            if (entity.worldObj.rand.nextInt(infernoRarity) == 0) // infernal
-                                                                  // mobs
+            minModifiers = minUltraModifiers;
+            maxModifiers = maxUltraModifiers;
+            if (entity.worldObj.rand.nextInt(infernoRarity) == 0) // infernal mobs
             {
-                number += 3 + entity.worldObj.rand.nextInt(2);
+                minModifiers = minInfernoModifiers;
+                maxModifiers = maxInfernoModifiers;
             }
         }
+        int number = Math.min(minModifiers, maxModifiers) + entity.worldObj.rand.nextInt((Math.max(minModifiers, maxModifiers) - Math.min(minModifiers, maxModifiers)) + 1);
 
         MobModifier lastMod = null;
         while (number > 0 && !possibleMods.isEmpty()) // so long we need more
@@ -602,6 +632,19 @@ public class InfernalMobsCore
         return lastMod;
     }
 
+    public void addEntityModifiers(EntityLivingBase entity, MobModifier mod, boolean isHealthHacked)
+    {
+       if (mod != null)
+       {
+           proxy.getRareMobs().put(entity, mod);
+           mod.onSpawningComplete(entity);
+           if (isHealthHacked)
+           {
+               mod.setHealthAlreadyHacked(entity);
+           }
+       }
+    }
+
     /**
      * Converts a String to MobModifier instances and connects them to an Entity
      * 
@@ -617,13 +660,11 @@ public class InfernalMobsCore
             MobModifier mod = stringToMobModifiers(entity, savedMods);
             if (mod != null)
             {
-                proxy.getRareMobs().put(entity, mod);
-                mod.onSpawningComplete(entity);
-                mod.setHealthAlreadyHacked(entity);
+                addEntityModifiers(entity, mod, true);
             }
             else
             {
-                System.err.println("Infernal Mobs error, could not instantiate modifier "+savedMods);
+                FMLLog.log("InfernalMobs", Level.DEBUG, String.format("Infernal Mobs error, could not instantiate modifier(s) %s", savedMods));
             }
         }
     }
@@ -660,7 +701,7 @@ public class InfernalMobsCore
                     e.printStackTrace();
                 }
 
-                if (nextMod != null && nextMod.modName.equals(modName))
+                if (nextMod != null && nextMod.modName.equalsIgnoreCase(modName))
                 {
                     /*
                      * Only actually keep the new linked instance if it's what
@@ -853,12 +894,51 @@ public class InfernalMobsCore
                     removeEntFromElites((EntityLivingBase) mob);
                 }
             }
+
+            resetModifiedPlayerEntitiesAsNeeded(tick.world);
         }
         
         if (!tick.world.isRemote)
         {
             infCheckA = null;
             infCheckB = null;   
+        }
+    }
+
+    private void resetModifiedPlayerEntitiesAsNeeded(World world)
+    {
+        Iterator<Entry<UUID, Long>> iterator = modifiedPlayerTimes.entrySet().iterator();
+        while (iterator.hasNext())
+        {
+            Entry<UUID, Long> entry = iterator.next();
+            if (System.currentTimeMillis() > entry.getValue() + (existCheckDelay * 2))
+            {
+                UUID id = entry.getKey();
+                for (Object p : world.playerEntities)
+                {
+                    if (p instanceof EntityPlayer)
+                    {
+                        EntityPlayer player = (EntityPlayer) p;
+                        if (player.getUniqueID().equals(id))
+	                    {
+	                        for (Class<? extends MobModifier> c : mobMods)
+	                        {
+	                            try
+	                            {
+	                                MobModifier mod = c.getConstructor(new Class[] {}).newInstance();
+	                                mod.resetModifiedVictim(player);
+	                            }
+	                            catch (Exception e)
+	                            {
+	                                e.printStackTrace();
+	                            }
+	                        }
+	                    }
+                    }
+                }
+
+                iterator.remove();
+            }
         }
     }
 
@@ -872,11 +952,6 @@ public class InfernalMobsCore
         return modHealthFactor;
     }
     
-    public float getLimitedDamage(float test)
-    {
-        return (float) Math.min(test, maxDamage);
-    }
-
     public boolean getIsEntityAllowedTarget(Entity entity)
     {
         return !(entity instanceof FakePlayer);
@@ -895,6 +970,17 @@ public class InfernalMobsCore
         infCheckA = mob;
         infCheckB = entity;
         return false;
+    }
+
+    /**
+     * add modified player entities to this map with the current time. a timer
+     * will call a reset on the players to the modifier class. do not remove
+     * players from here in a modifier as aliasing may occur (different mods
+     * using this at the same time)
+     */
+    public HashMap<UUID, Long> getModifiedPlayerTimes()
+    {
+        return modifiedPlayerTimes;
     }
 
 }

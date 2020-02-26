@@ -23,7 +23,7 @@ public class InfernalCommandSpawnInfernal extends CommandBase
     @Override
     public String getCommandUsage(ICommandSender sender)
     {
-        return "/spawninfernal x y z ENTCLASS X spawns an Infernal Mob of class ENTCLASS at x, y, z with Modifiers X";
+        return "/spawninfernal x y z ENTCLASS X spawns an Infernal Mob of class ENTCLASS at x, y, z with Modifiers X (or random Modifiers if X is ~)";
     }
 
     @SuppressWarnings({ "unchecked" })
@@ -55,7 +55,15 @@ public class InfernalCommandSpawnInfernal extends CommandBase
                     sender.getEntityWorld().spawnEntityInWorld(mob);
                     
                     InfernalMobsCore.proxy.getRareMobs().remove(mob);
-                    InfernalMobsCore.instance().addEntityModifiersByString(mob, modifier);
+                    if (modifier.equals("~"))
+                    {
+                        MobModifier mod = InfernalMobsCore.instance().createMobModifiers(mob);
+                        InfernalMobsCore.instance().addEntityModifiers(mob, mod, true);
+                    }
+                    else
+                    {
+                        InfernalMobsCore.instance().addEntityModifiersByString(mob, modifier);
+                    }
                     MobModifier mod = InfernalMobsCore.getMobModifiers(mob);
                     if (mod != null)
                     {

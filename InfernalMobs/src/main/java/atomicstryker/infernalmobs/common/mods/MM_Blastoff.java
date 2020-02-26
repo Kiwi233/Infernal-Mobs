@@ -4,11 +4,15 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.util.DamageSource;
+import net.minecraftforge.common.config.Configuration;
 import atomicstryker.infernalmobs.common.InfernalMobsCore;
 import atomicstryker.infernalmobs.common.MobModifier;
 
 public class MM_Blastoff extends MobModifier
 {
+    private long nextAbilityUse = 0L;
+    private static long coolDown;
+
     public MM_Blastoff(EntityLivingBase mob)
     {
         this.modName = "Blastoff";
@@ -19,17 +23,17 @@ public class MM_Blastoff extends MobModifier
         this.modName = "Blastoff";
         this.nextMod = prevMod;
     }
-    
-    private long nextAbilityUse = 0L;
-    private final static long coolDown = 15000L;
-    
+
     @Override
     public boolean onUpdate(EntityLivingBase mob)
     {
-        if (getMobTarget() != null
-        && getMobTarget() instanceof EntityPlayer)
+        EntityLivingBase target = getMobTarget();
+
+        if (target != null
+        && target instanceof EntityPlayer
+        && !(target instanceof EntityPlayer && ((EntityPlayer) target).capabilities.disableDamage))
         {
-            tryAbility(mob, getMobTarget());
+            tryAbility(mob, target);
         }
         
         return super.onUpdate(mob);
@@ -39,7 +43,8 @@ public class MM_Blastoff extends MobModifier
     public float onHurt(EntityLivingBase mob, DamageSource source, float damage)
     {
         if (source.getEntity() != null
-        && source.getEntity() instanceof EntityLivingBase)
+        && source.getEntity() instanceof EntityLivingBase
+        && !(source.getEntity() instanceof EntityPlayer && ((EntityPlayer) source.getEntity()).capabilities.disableDamage))
         {
             tryAbility(mob, (EntityLivingBase) source.getEntity());
         }
@@ -58,7 +63,7 @@ public class MM_Blastoff extends MobModifier
         if (time > nextAbilityUse)
         {
             nextAbilityUse = time+coolDown;
-            mob.worldObj.playSoundAtEntity(mob, "mob.slimeattack", 1.0F, (mob.worldObj.rand.nextFloat() - mob.worldObj.rand.nextFloat()) * 0.2F + 1.0F);
+            mob.worldObj.playSoundAtEntity(mob, "mob.slime.attack", 1.0F, (mob.worldObj.rand.nextFloat() - mob.worldObj.rand.nextFloat()) * 0.2F + 1.0F);
             
             if (target.worldObj.isRemote || !(target instanceof EntityPlayerMP))
             {
@@ -71,6 +76,11 @@ public class MM_Blastoff extends MobModifier
         }
     }
     
+    public static void loadConfig(Configuration config)
+    {
+        coolDown = config.get(MM_Blastoff.class.getSimpleName(), "coolDownMillis", 15000L, "Time between ability uses").getInt(15000);
+    }
+
     @Override
     public Class<?>[] getModsNotToMixWith()
     {

@@ -2,11 +2,14 @@ package atomicstryker.infernalmobs.common.mods;
 
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.monster.EntityCreeper;
+import net.minecraftforge.common.config.Configuration;
 import atomicstryker.infernalmobs.common.InfernalMobsCore;
 import atomicstryker.infernalmobs.common.MobModifier;
 
 public class MM_1UP extends MobModifier
 {
+    private static double healAmount;
+
     private boolean healed;
     
     public MM_1UP(EntityLivingBase mob)
@@ -27,13 +30,18 @@ public class MM_1UP extends MobModifier
     {
         if (!healed && mob.getHealth() < (getActualMaxHealth(mob)*0.25))
         {
-            InfernalMobsCore.instance().setEntityHealthPastMax(mob, getActualMaxHealth(mob));
+            InfernalMobsCore.instance().setEntityHealthPastMax(mob, getActualMaxHealth(mob) * (float) healAmount);
             mob.worldObj.playSoundAtEntity(mob, "random.levelup", 1.0F, 1.0F);
             healed = true;
         }
         return super.onUpdate(mob);
     }
     
+    public static void loadConfig(Configuration config)
+    {
+        healAmount = config.get(MM_1UP.class.getSimpleName(), "healAmountMultiplier", 1.0D, "Multiplies the mob maximum health when healing back up, cannot get past maximum mob health").getDouble(1.0D);
+    }
+
     @Override
     public Class<?>[] getBlackListMobClasses()
     {

@@ -5,10 +5,14 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.MathHelper;
+import net.minecraftforge.common.config.Configuration;
 import atomicstryker.infernalmobs.common.MobModifier;
 
 public class MM_Webber extends MobModifier
 {
+    private long lastAbilityUse = 0L;
+    private static long coolDown;
+
     public MM_Webber(EntityLivingBase mob)
     {
         this.modName = "Webber";
@@ -19,10 +23,7 @@ public class MM_Webber extends MobModifier
         this.modName = "Webber";
         this.nextMod = prevMod;
     }
-    
-    private long lastAbilityUse = 0L;
-    private final static long coolDown = 15000L;
-    
+
     @Override
     public boolean onUpdate(EntityLivingBase mob)
     {
@@ -49,7 +50,7 @@ public class MM_Webber extends MobModifier
 
     private void tryAbility(EntityLivingBase mob, EntityLivingBase target)
     {
-        if (target == null || !mob.canEntityBeSeen(target))
+        if (target == null || !mob.canEntityBeSeen(target) || (target instanceof EntityPlayer && ((EntityPlayer) target).capabilities.disableDamage))
         {
             return;
         }
@@ -77,10 +78,15 @@ public class MM_Webber extends MobModifier
             
             lastAbilityUse = time;
             target.worldObj.setBlock(x, y+offset, z, Blocks.web, 0, 3);
-            mob.worldObj.playSoundAtEntity(mob, "mob.spider", 1.0F, (mob.worldObj.rand.nextFloat() - mob.worldObj.rand.nextFloat()) * 0.2F + 1.0F);
+            mob.worldObj.playSoundAtEntity(mob, "mob.spider.say", 1.0F, (mob.worldObj.rand.nextFloat() - mob.worldObj.rand.nextFloat()) * 0.2F + 1.0F);
         }
     }
     
+    public static void loadConfig(Configuration config)
+    {
+        coolDown = config.get(MM_Webber.class.getSimpleName(), "coolDownMillis", 15000L, "Time between ability uses").getInt(15000);
+    }
+
     @Override
     public Class<?>[] getModsNotToMixWith()
     {

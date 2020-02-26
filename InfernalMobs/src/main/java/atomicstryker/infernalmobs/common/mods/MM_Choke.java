@@ -4,6 +4,10 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.util.DamageSource;
+import net.minecraftforge.common.config.Configuration;
+
+import java.util.UUID;
+
 import atomicstryker.infernalmobs.common.InfernalMobsCore;
 import atomicstryker.infernalmobs.common.MobModifier;
 
@@ -99,7 +103,24 @@ public class MM_Choke extends MobModifier
         if (lastTarget instanceof EntityPlayerMP)
         {
             InfernalMobsCore.instance().sendAirPacket((EntityPlayerMP)lastTarget, lastAir);
+
+            UUID id = ((EntityPlayerMP) lastTarget).getUniqueID();
+            if (id != null)
+            {
+                InfernalMobsCore.instance().getModifiedPlayerTimes().put(id, System.currentTimeMillis());
+            }
         }
+    }
+
+    @Override
+    public void resetModifiedVictim(EntityPlayer victim)
+    {
+        victim.setAir(-999);
+    }
+
+    public static void loadConfig(Configuration config)
+    {
+        // NOOP by default
     }
 
     @Override

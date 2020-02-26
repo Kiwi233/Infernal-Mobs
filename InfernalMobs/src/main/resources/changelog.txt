@@ -1,3 +1,18 @@
+1.6.6gtnh1
+- backport fixes from 1.12.0 branches
+ - Add German and Chinese translations
+ - Choke modifier fix (overlay not disappearing)
+ - Unified Ninja and Ender teleport (and fixes teleport into solid spaces)
+- don't render spawn particles while the game is paused
+- fix sound effects
+- make many aspects of modifiers configurable
+- fix health bar for 1UP, Regen, and Lifesteal
+- fix modifiers being activated even though mob is neutral
+- make certain modifiers no longer effect creative players
+- make certain modifiers no long effect attackers using ranged attacks
+- added 3 second time out for the choke modifier bubble overlay in case of a desync
+- drop maxOneShotDamage config option in favor of individual modifier options
+
 1.6.6
 - now disregards instances of IEntityOwnable's (mod added mobs which can be tamed)
 - merged 1.7.10's version number to 1.6.6, since it is feature identical with 18 and 188 branches

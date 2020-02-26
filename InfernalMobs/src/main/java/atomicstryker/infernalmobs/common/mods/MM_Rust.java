@@ -4,10 +4,13 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EntityDamageSourceIndirect;
+import net.minecraftforge.common.config.Configuration;
 import atomicstryker.infernalmobs.common.MobModifier;
 
 public class MM_Rust extends MobModifier
 {
+    private static int itemDamage;
+
     public MM_Rust(EntityLivingBase mob)
     {
         this.modName = "Rust";
@@ -29,7 +32,7 @@ public class MM_Rust extends MobModifier
             EntityPlayer p = (EntityPlayer)source.getEntity();
             if (p.inventory.getCurrentItem() != null)
             {
-                p.inventory.getCurrentItem().damageItem(4, (EntityLivingBase) source.getEntity());
+                p.inventory.getCurrentItem().damageItem(itemDamage, (EntityLivingBase) source.getEntity());
             }
         }
         
@@ -47,7 +50,12 @@ public class MM_Rust extends MobModifier
         
         return super.onAttack(entity, source, damage);
     }
-    
+
+    public static void loadConfig(Configuration config)
+    {
+        itemDamage = config.get(MM_Rust.class.getSimpleName(), "itemDamage", 4, "Damage dealt to Item in hand of attacking entity").getInt(4);
+    }
+
     @Override
     protected String[] getModNameSuffix()
     {

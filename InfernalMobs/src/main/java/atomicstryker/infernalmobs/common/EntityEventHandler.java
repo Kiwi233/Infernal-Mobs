@@ -3,6 +3,8 @@ package atomicstryker.infernalmobs.common;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
+import org.apache.logging.log4j.Level;
+
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.DamageSource;
@@ -20,6 +22,7 @@ import net.minecraftforge.event.entity.living.LivingFallEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.event.entity.living.LivingSetAttackTargetEvent;
 import net.minecraftforge.event.world.ChunkEvent;
+import cpw.mods.fml.common.FMLLog;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 
 public class EntityEventHandler
@@ -227,8 +230,7 @@ public class EntityEventHandler
                         }
                     }
 
-                    System.out.println("Infernal Mobs AntiMobFarm damage check, max detected chunk damage value " + maxDamage + " near coords "
-                            + maxC.getCenterXPos() + ", " + maxC.getCenterZPosition());
+                    //FMLLog.log("InfernalMobs", Level.DEBUG, String.format("Infernal Mobs AntiMobFarm damage check, max detected chunk damage value %s near coords %e, %e", maxDamage, maxC.getCenterXPos(), maxC.getCenterZPosition()));
                     if (maxDamage > mobFarmDamageTrigger)
                     {
                         MinecraftForge.EVENT_BUS.post(new MobFarmDetectedEvent(event.entityLiving.worldObj.getChunkFromChunkCoords(maxC.chunkXPos,

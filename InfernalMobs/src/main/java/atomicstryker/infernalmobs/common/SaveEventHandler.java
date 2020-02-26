@@ -3,8 +3,13 @@ package atomicstryker.infernalmobs.common;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.world.chunk.Chunk;
+
+import java.util.Iterator;
+import java.util.Map.Entry;
+
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.event.world.ChunkEvent;
+import net.minecraftforge.event.world.WorldEvent;
 
 public class SaveEventHandler
 {
@@ -56,4 +61,18 @@ public class SaveEventHandler
         }
     }
 
+    @SubscribeEvent
+    public void onWorldUnload(WorldEvent.Unload event)
+    {
+        Iterator<Entry<EntityLivingBase, MobModifier>> iterator = InfernalMobsCore.proxy.getRareMobs().entrySet().iterator();
+        while (iterator.hasNext())
+        {
+            Entry<EntityLivingBase, MobModifier> entry = iterator.next();
+
+            if (entry.getKey().worldObj == event.world)
+            {
+                iterator.remove();
+            }
+        }
+    }
 }

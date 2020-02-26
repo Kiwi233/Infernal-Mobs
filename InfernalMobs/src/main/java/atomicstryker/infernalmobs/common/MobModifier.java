@@ -2,13 +2,18 @@ package atomicstryker.infernalmobs.common;
 
 import java.util.ArrayList;
 
+import org.apache.logging.log4j.Level;
+
+import cpw.mods.fml.common.FMLLog;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
+import net.minecraft.entity.monster.EntityMob;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.StatCollector;
+import net.minecraftforge.common.config.Configuration;
 
 public abstract class MobModifier
 {    
@@ -135,7 +140,7 @@ public abstract class MobModifier
         String oldTag = entity.getEntityData().getString(InfernalMobsCore.instance().getNBTTag());
         if (!oldTag.isEmpty() && !oldTag.equals(getLinkedModNameUntranslated()))
         {
-            System.out.printf("Infernal Mobs tag mismatch!! Was [%s], now trying to set [%s] \n", oldTag, getLinkedModNameUntranslated());
+            FMLLog.log("InfernalMobs", Level.DEBUG, String.format("Infernal Mobs tag mismatch!! Was [%s], now trying to set [%s] \n", oldTag, getLinkedModNameUntranslated()));
         }
         entity.getEntityData().setString(InfernalMobsCore.instance().getNBTTag(), getLinkedModNameUntranslated());
     }
@@ -259,12 +264,15 @@ public abstract class MobModifier
         {
             if (attackTarget == null)
             {
-                attackTarget = mob.worldObj.getClosestVulnerablePlayerToEntity(mob, 7.5f);
+                if (mob instanceof EntityMob)
+                {
+                    attackTarget = (EntityLivingBase) ((EntityMob) mob).getEntityToAttack();
+                }
             }
             
             if (attackTarget != null)
             {
-                if (attackTarget.isDead || attackTarget.getDistanceToEntity(mob) > 15f)
+                if (attackTarget.isDead || attackTarget.getDistanceToEntity(mob) > 15f || (attackTarget instanceof EntityPlayer && ((EntityPlayer) attackTarget).capabilities.disableDamage))
                 {
                     attackTarget = null;
                 }
@@ -408,6 +416,10 @@ public abstract class MobModifier
         if (bufferedEntityName == null)
         {
             String buffer = EntityList.getEntityString(target);
+            if (buffer == null)
+            {
+                buffer = "Monster";
+            }
             String[] subStrings = buffer.split("\\."); // in case of Package.Class.EntityName derps
             if (subStrings.length > 1)
             {
@@ -462,4 +474,24 @@ public abstract class MobModifier
         return bufferedEntityName;
     }
     
+    /**
+     * if a modifier does permanent changes to an entity, they need to register
+     * the playername at InfernalMobsCore.instance().getModifiedPlayerTimes()
+     * with the current timestamp a timer keeps track of the player not being
+     * infernal'd for a while and triggers this modifiers should override this
+     * and clean up their changes when necessary
+     */
+    public void resetModifiedVictim(EntityPlayer victim)
+    {
+        // NOOP by default
+    }
+
+    /**
+     * Load modifier-specific configuration
+     */
+    public static void loadConfig(Configuration config)
+    {
+        // NOOP by default
+    }
+
 }

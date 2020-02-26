@@ -6,11 +6,18 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.Vec3;
+import net.minecraftforge.common.config.Configuration;
 import atomicstryker.infernalmobs.common.InfernalMobsCore;
 import atomicstryker.infernalmobs.common.MobModifier;
 
 public class MM_Ninja extends MobModifier
 {
+    private long nextAbilityUse = 0L;
+
+    private static long coolDown;
+    private static float reflectMultiplier;
+    private static float maxReflectDamage;
+
     public MM_Ninja(EntityLivingBase mob)
     {
         this.modName = "Ninja";
@@ -21,10 +28,7 @@ public class MM_Ninja extends MobModifier
         this.modName = "Ninja";
         this.nextMod = prevMod;
     }
-    
-    private long nextAbilityUse = 0L;
-    private final static long coolDown = 15000L;
-    
+
     @Override
     public float onHurt(EntityLivingBase mob, DamageSource source, float damage)
     {
@@ -36,7 +40,7 @@ public class MM_Ninja extends MobModifier
         && teleportToEntity(mob, source.getEntity()))
         {
             nextAbilityUse = time+coolDown;
-            source.getEntity().attackEntityFrom(DamageSource.causeMobDamage(mob), InfernalMobsCore.instance().getLimitedDamage(damage));
+            source.getEntity().attackEntityFrom(DamageSource.causeMobDamage(mob), Math.min(maxReflectDamage, damage * reflectMultiplier));
             return super.onHurt(mob, source, 0);
         }
         
@@ -59,6 +63,7 @@ public class MM_Ninja extends MobModifier
         double oldX = mob.posX;
         double oldY = mob.posY;
         double oldZ = mob.posZ;
+        boolean success = false;
         mob.posX = destX;
         mob.posY = destY;
         mob.posZ = destZ;
@@ -79,8 +84,8 @@ public class MM_Ninja extends MobModifier
                 }
                 else
                 {
-                    ++mob.posY;
-                    ++y;
+                    --mob.posY;
+                    --y;
                 }
             }
 
@@ -88,17 +93,37 @@ public class MM_Ninja extends MobModifier
             {
                 mob.setPosition(mob.posX, mob.posY, mob.posZ);
                 
-                mob.worldObj.playSoundEffect(oldX, oldY, oldZ, "random.explode", 2.0F, (1.0F + (mob.worldObj.rand.nextFloat() - mob.worldObj.rand.nextFloat()) * 0.2F) * 0.7F);
-                mob.worldObj.spawnParticle("hugeexplosion", oldX, oldY, oldZ, 0D, 0D, 0D);
+                if (mob.worldObj.getCollidingBoundingBoxes(mob, mob.boundingBox).isEmpty() && !mob.worldObj.isAnyLiquid(mob.boundingBox) && !mob.worldObj.checkBlockCollision(mob.boundingBox))
+                {
+                    success = true;
+                }
             }
             else
             {
                 return false;
             }
+
+            if (!success)
+            {
+                mob.setPosition(oldX, oldY, oldZ);
+                return false;
+            }
+            else
+            {
+                mob.worldObj.playSoundEffect(oldX, oldY, oldZ, "random.explode", 2.0F, (1.0F + (mob.worldObj.rand.nextFloat() - mob.worldObj.rand.nextFloat()) * 0.2F) * 0.7F);
+                mob.worldObj.spawnParticle("hugeexplosion", oldX, oldY, oldZ, 0D, 0D, 0D);
+            }
         }
         return true;
     }
-    
+
+    public static void loadConfig(Configuration config)
+    {
+        coolDown = config.get(MM_Ninja.class.getSimpleName(), "coolDownMillis", 15000L, "Time between ability uses").getInt(15000);
+        reflectMultiplier = (float) config.get(MM_Ninja.class.getSimpleName(), "ninjaReflectMultiplier", 0.75D, "When a mob with Ninja modifier gets hurt it teleports to the attacker and reflects some of the damage originally dealt. This sets the multiplier for the reflected damage").getDouble(0.75D);
+        maxReflectDamage= (float) config.get(MM_Ninja.class.getSimpleName(), "ninjaReflectMaxDamage", 10.0D, "When a mob with Ninja modifier gets hurt it teleports to the attacker and reflects some of the damage originally dealt. This sets the maximum amount that can be inflicted (0, or less than zero for unlimited reflect damage)").getDouble(10.0D);
+    }
+
     @Override
     protected String[] getModNameSuffix()
     {
