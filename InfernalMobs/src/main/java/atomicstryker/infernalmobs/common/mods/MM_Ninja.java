@@ -121,7 +121,7 @@ public class MM_Ninja extends MobModifier
     {
         coolDown = config.get(MM_Ninja.class.getSimpleName(), "coolDownMillis", 15000L, "Time between ability uses").getInt(15000);
         reflectMultiplier = (float) config.get(MM_Ninja.class.getSimpleName(), "ninjaReflectMultiplier", 0.75D, "When a mob with Ninja modifier gets hurt it teleports to the attacker and reflects some of the damage originally dealt. This sets the multiplier for the reflected damage").getDouble(0.75D);
-        maxReflectDamage= (float) config.get(MM_Ninja.class.getSimpleName(), "ninjaReflectMaxDamage", 10.0D, "When a mob with Ninja modifier gets hurt it teleports to the attacker and reflects some of the damage originally dealt. This sets the maximum amount that can be inflicted (0, or less than zero for unlimited reflect damage)").getDouble(10.0D);
+        maxReflectDamage = (float) config.get(MM_Ninja.class.getSimpleName(), "ninjaReflectMaxDamage", 10.0D, "When a mob with Ninja modifier gets hurt it teleports to the attacker and reflects some of the damage originally dealt. This sets the maximum amount that can be inflicted (0, or less than zero for unlimited reflect damage)").getDouble(10.0D);
     }
 
     @Override
