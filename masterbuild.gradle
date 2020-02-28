@@ -21,7 +21,10 @@ archivesBaseName = projname
 
 minecraft {
     version = xmlproperties.@mcversion
-	runDir = "eclipse/assets"
+    runDir = "eclipse/assets"
+
+    // need toString() here since xmlproperties is not serializable
+    replace "@VERSION@", project.version.toString()
 }
 
 compileJava { options.encoding = 'utf-8' }

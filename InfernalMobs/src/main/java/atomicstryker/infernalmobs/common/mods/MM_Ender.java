@@ -133,7 +133,7 @@ public class MM_Ender extends MobModifier
     {
         coolDown = config.get(MM_Ender.class.getSimpleName(), "coolDownMillis", 15000L, "Time between ability uses").getInt(15000);
         reflectMultiplier = (float) config.get(MM_Ender.class.getSimpleName(), "enderReflectMultiplier", 0.75D, "When a mob with Ender modifier gets hurt it teleports and reflects some of the damage originally dealt. This sets the multiplier for the reflected damage").getDouble(0.75D);
-        maxReflectDamage= (float) config.get(MM_Ender.class.getSimpleName(), "enderReflectMaxDamage", 10.0D, "When a mob with Ender modifier gets hurt it teleports and reflects some of the damage originally dealt. This sets the maximum amount that can be inflicted (0, or less than zero for unlimited reflect damage)").getDouble(10.0D);
+        maxReflectDamage = (float) config.get(MM_Ender.class.getSimpleName(), "enderReflectMaxDamage", 10.0D, "When a mob with Ender modifier gets hurt it teleports and reflects some of the damage originally dealt. This sets the maximum amount that can be inflicted (0, or less than zero for unlimited reflect damage)").getDouble(10.0D);
     }
 
     @Override
