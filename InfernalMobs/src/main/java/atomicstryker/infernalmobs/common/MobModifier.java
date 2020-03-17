@@ -264,7 +264,7 @@ public abstract class MobModifier
         {
             if (attackTarget == null)
             {
-                if (mob instanceof EntityMob)
+                if (mob instanceof EntityMob && ((EntityMob) mob).getEntityToAttack() instanceof EntityLivingBase)
                 {
                     attackTarget = (EntityLivingBase) ((EntityMob) mob).getEntityToAttack();
                 }
