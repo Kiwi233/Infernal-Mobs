@@ -8,9 +8,9 @@ gradle/
 .recommenders*
 BloodMagic/
 WildTPMod/
-.classpath
-.project
-.settings/
+*/.classpath
+*/.project
+*/.settings/
 CREDITS-fml.txt
 FinderCompass/gradle-app.setting
 LICENSE-fml.txt
