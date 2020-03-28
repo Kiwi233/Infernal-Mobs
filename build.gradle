@@ -1,3 +1,25 @@
+buildscript {
+    repositories {
+        mavenCentral()
+        maven {
+            name = "forge"
+            url = "http://files.minecraftforge.net/maven"
+        }
+        maven {
+            name = "sonatype"
+            url = "https://oss.sonatype.org/content/repositories/snapshots/"
+        }
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
+    dependencies {
+        classpath 'net.minecraftforge.gradle:ForgeGradle:1.2-SNAPSHOT'
+    }
+}
+
+apply plugin: 'forge'
+
 
 def zipfile = file( 'makezip' )
 if( zipfile.exists() ) {
@@ -13,7 +35,7 @@ def projname = projectDir.getName()
 def projectpath = projectDir.getAbsolutePath()
 
 // read versions from central workspace xml file
-def xmlproperties = new XmlSlurper().parse(file("../properties.xml"))
+def xmlproperties = new XmlSlurper().parse(file("properties.xml"))
 
 version = xmlproperties.@version
 group= "atomicstryker."+projname
