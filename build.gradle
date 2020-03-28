@@ -19,34 +19,12 @@ buildscript {
 }
 
 apply plugin: 'forge'
+apply plugin: 'idea'
 
-
-def zipfile = file( 'makezip' )
-if( zipfile.exists() ) {
-	defaultTasks 'makezip'
-}
-else {
-	defaultTasks 'build'
-}
-
-// each mod uses its project foldername
-def projname = projectDir.getName()
-
-def projectpath = projectDir.getAbsolutePath()
-
-// read versions from central workspace xml file
-def xmlproperties = new XmlSlurper().parse(file("properties.xml"))
-
-version = xmlproperties.@version
-group= "atomicstryker."+projname
-archivesBaseName = projname
+version="1.7.10-1.7.1"
 
 minecraft {
-    version = xmlproperties.@mcversion
-    runDir = "eclipse/assets"
-
-    // need toString() here since xmlproperties is not serializable
-    replace "@VERSION@", project.version.toString()
+    version = "1.7.10-10.13.4.1614-1.7.10"
 }
 
 compileJava { options.encoding = 'utf-8' }
@@ -65,9 +43,8 @@ if( dfile.exists() ) {
 }
 
 dependencies {
-	// also punch in anything in the forgegradle libs folder
-	compile fileTree(dir: projectpath+'/../../forgegradle/libs', include: '*.jar')
-    compile fileTree(dir: projectpath+'/../../forgegradle/libs', include: '*.zip')
+	    compile fileTree(dir: 'libs', include: '*.jar,*.zip')
+
 }
 
 processResources
