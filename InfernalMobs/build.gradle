@@ -20,4 +20,4 @@ buildscript {
 
 apply plugin: 'forge'
 
-apply from: '../masterbuild.gradle'
+apply from: '../build.gradle'
